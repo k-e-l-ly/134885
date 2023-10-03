@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 Name: Mbai Kelly Kaindi 
 Admission Number: 134885
+=======
+Name: Mbai Kelly Kaindi 
+Admission Number: 134885
+>>>>>>> 56e067b58417a26059f9b001387c0c97ed86e2b1
 Project Title: A Web Based System to Detect and Predict Eye Cancer using Computer Vision.
