@@ -6,7 +6,7 @@
 }
 body{
     min-height: 100vh;
-    background-image: url('yy.jpeg');
+    background: linear-gradient(to top, rgb(190, 150, 239),white);
     background-size: cover;
     background-position: center;
 }
@@ -31,7 +31,7 @@ body{
 .navbar a{
     position: relative;
     font-size: 18px;
-    color: white;
+    color: black;
     font-weight: 500;
     text-decoration: none;
     margin-left: 40px;
@@ -51,7 +51,7 @@ body{
     margin-bottom: 10px;
 }
 .content .info h2 span{
-    color: white;
+    color: red;
     font-size: 50px;
     font-weight: 600;
 }
