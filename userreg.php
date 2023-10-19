@@ -114,7 +114,7 @@ $conn->close();
     <div class = "container">
 
          <div class = "form-box">
-            <form id="registration form" method="POST" action="reg.php" >
+            <form id="registration form" method="POST" action="userreg.php" >
                 <h2>Register Here</h2>
                 <div class="input-box">
                     <input type="text" name="username" placeholder ="username">
