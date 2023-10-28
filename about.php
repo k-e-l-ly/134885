@@ -62,5 +62,7 @@
             <p>Regular eye tests are essential for early detection of eye diseases, including eye cancer. Timely detection can significantly increase the chances of successful treatment. Our Eye Cancer Detection system leverages computer vision to assist in the early diagnosis and monitoring of eye-related conditions.</p>
         </div>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
+
 </html>

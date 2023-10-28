@@ -64,144 +64,150 @@ while ($row = $result->fetch_assoc()) {
 </head>
 <body>
 <section id="sidebar">
-		<a href="#" class="brand">
-			<i class='bx bxs-smile'></i>
-			<span class="text">AdminHub</span>
-		</a>
-		<ul class="side-menu top">
-			<li class="active">
-				<a href="#">
-					<i class='bx bxs-dashboard' ></i>
-					<span class="text">Dashboard</span>
-				</a>
-			</li>
-			<li>
-				<a href="allusers.php">
-					<i class='bx bxs-user' ></i>
-					<span class="text">All users</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-doughnut-chart' ></i>
-					<span class="text">Analytics</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-message-dots' ></i>
-					<span class="text">Message</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-group' ></i>
-					<span class="text">Team</span>
-				</a>
-			</li>
-		</ul>
-		<ul class="side-menu">
-			<li>
-				<a href="#">
-					<i class='bx bxs-cog' ></i>
-					<span class="text">Settings</span>
-				</a>
-			</li>
-			<li>
-				<a href="#" class="logout">
-					<i class='bx bxs-log-out-circle' ></i>
-					<span class="text">Logout</span>
-				</a>
-			</li>
-		</ul>
-	</section>
-
-
-    <section id="content">
-		<!-- NAVBAR -->
-		<nav>
-			<i class='bx bx-menu' ></i>
-			<a href="#" class="nav-link">Categories</a>
-			<form action="#">
-				<div class="form-input">
-					<input type="search" placeholder="Search...">
-					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
-				</div>
-			</form>
-			<input type="checkbox" id="switch-mode" hidden>
-			<label for="switch-mode" class="switch-mode"></label>
-			<a href="#" class="notification">
-				<i class='bx bxs-bell' ></i>
-				<span class="num">8</span>
-			</a>
-			<a href="#" class="profile">
-				<img src="cv.png">
-			</a>
-		</nav>
-		<!-- NAVBAR -->
-
+        <a href="#" class="brand">
+            <i class='bx bxs-smile'></i>
+            <span class="text">Admin Dashboard</span>
+        </a>
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="#">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="allusers.php">
+                    <i class='bx bxs-user' ></i>
+                    <span class="text">All Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="predictions.php">
+                    <i class='bx bxs-predict' ></i>
+                    <span class="text">Predictions</span>
+                </a>
+            </li>
+            <li>
+                <a href="reports.php">
+                    <i class='bx bxs-report' ></i>
+                    <span class="text">Reports</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog' ></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+	
+	<section id="content">
         <div class="content">
-                <div class="analysis-section">
-                    <h1>User Analysis</h1>
-                    <p>Total Users: <?php echo $totalUsers; ?></p>
-                </div>
+            <!--<div class="analysis-section">
+                <h1>All Users</h1>
+            </div>-->
 
-                <div class="analysis-section">
-                    <h2>Age Summary</h2>
-                    <p>Total Users: <?php echo $userCount; ?></p>
-                    <p>Minimum Age: <?php echo calculateAge($minAge); ?> years</p>
-                    <p>Maximum Age: <?php echo calculateAge($maxAge); ?> years</p>
-                    <p>Average Age: <?php echo round($averageAge, 2); ?> years</p>
-                </div>
-
-                <div class="analysis-section">
-                    <h2>Gender Distribution</h2>
-                    <ul>
-                        <?php
-                        foreach ($genderSummary as $gender => $count) {
-                            echo "<li>$gender: $count</li>";
-                        }
-                        ?>
-                    </ul>
-                </div>
-        </div>
-
-        <div class = "mngt">
+            <div class="user-table">
+                <h2>User Statistics</h2>
                 <?php
-                    // Connect to your database here
+                $servername = "localhost";
+                $username = "root";
+                $password = "";
+                $database = "eyecancer";
 
-                    // Retrieve all users from the tbl_users table
-                    $query = "SELECT * FROM tbl_users";
-                    $result = mysqli_query($conn, $query);
+                // Create a connection
+                $conn = new mysqli($servername, $username, $password, $database);
 
-                    if (mysqli_num_rows($result) > 0) {
-                        echo '<table>';
-                        echo '<tr><th>ID</th><th>Username</th><th>Email</th><th>Actions</th></tr>';
-                        
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<tr>';
-                            echo '<td style="padding:2px;>' . $row['user_id'] . '</td>';
-                            echo '<td style="padding:2px;>' . $row['username'] . '</td>';
-                            echo '<td style="padding:2px;>' . $row['email'] . '</td>';
-                            echo '<td style="padding:2px;>';
-                            echo '<a href="update.php?id=' . $row['user_id'] . '">Update</a>';
-                            echo ' | ';
-                            echo '<a href="delete.php?id=' . $row['user_id'] . '">Delete</a>';
-                            echo '</td>';
-                            echo '</tr>';
-                        }
-                        
-                        echo '</table>';
-                    } else {
-                        echo 'No users found.';
+                // Check connection
+                if ($conn->connect_error) {
+                    die("Connection failed: " . $conn->connect_error);
+                }
+
+                // Retrieve user statistics
+                $statisticsQuery = "SELECT COUNT(*) AS total_users, MIN(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS min_age, MAX(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS max_age, AVG(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS average_age, gender, COUNT(*) AS gender_count FROM tbl_users GROUP BY gender";
+                $result = $conn->query($statisticsQuery);
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<p>Total Users: " . $row['total_users'] . "</p>";
+                    echo "<p>Minimum Age: " . $row['min_age'] . " years</p>";
+                    echo "<p>Maximum Age: " . $row['max_age'] . " years</p>";
+                    echo "<p>Average Age: " . round($row['average_age'], 2) . " years</p>";
+                    echo "<h2>Gender Distribution</h2>";
+                    echo "<ul>";
+                    echo "<li>" . $row['gender'] . ": " . $row['gender_count'] . "</li>";
+                    echo "</ul>";
+                }
+
+                // Close the database connection
+                $conn->close();
+                ?>
+            </div>
+
+            <div class="user-table">
+                <h2>All Users List</h2>
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Actions</th>
+                    </tr>
+                    <?php
+                    // Retrieve all users from the database
+                    $servername = "localhost";
+                    $username = "root";
+                    $password = "";
+                    $database = "eyecancer";
+
+                    // Create a connection
+                    $conn = new mysqli($servername, $username, $password, $database);
+
+                    // Check connection
+                    if ($conn->connect_error) {
+                        die("Connection failed: " . $conn->connect_error);
+                    }
+
+                    $usersQuery = "SELECT user_id, username, email, dateofbirth, gender FROM tbl_users";
+                    $result = $conn->query($usersQuery);
+
+                    while ($row = $result->fetch_assoc()) {
+                        // Calculate the age from the date of birth
+                        $dateOfBirth = $row['dateofbirth'];
+                        $dateOfBirth = new DateTime($dateOfBirth);
+                        $currentDate = new DateTime();
+                        $age = $currentDate->diff($dateOfBirth)->y;
+
+                        echo "<tr>";
+                        echo "<td>" . $row['user_id'] . "</td>";
+                        echo "<td>" . $row['username'] . "</td>";
+                        echo "<td>" . $row['email'] . "</td>";
+                        echo "<td>" . $age . "</td>";
+                        echo "<td>" . $row['gender'] . "</td>";
+                        echo "<td>";
+                        echo "<a href='update.php?user_id=" . $row['user_id'] . "'>Update</a>";
+                        echo " | ";
+                        echo "<a href='delete.php?user_id=" . $row['user_id'] . "'>Delete</a>";
+                        echo "</td>";
+                        echo "</tr>";
                     }
 
                     // Close the database connection
-                    mysqli_close($conn);
-                ?>
+                    $conn->close();
+                    ?>
+                </table>
+            </div>
         </div>
-
-	</section>
-    
+    </section>
 </body>
 </html>

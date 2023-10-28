@@ -2,52 +2,81 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "eyecancer";
+  session_start();
+  if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+    header("location: land.php");
+    exit;
+  }
 
-$conn = new mysqli($servername, $username, $password, $database);
+  require_once "connect.php";
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+  $username = $password = "";
+  $username_err = $password_err = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $raw_password = $_POST['password'];
-
-    // Check if the provided username exists in the database
-    $check_query = "SELECT * FROM tbl_users WHERE username = ?";
-    $check_stmt = $conn->prepare($check_query);
-    $check_stmt->bind_param("s", $username);
-    $check_stmt->execute();
-    $result = $check_stmt->get_result();
-
-    if ($result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-        $hashed_password = $row['password'];
-
-        // Verify the provided password
-        if (password_verify($raw_password, $hashed_password)) {
-            // Password is correct, set session variables and redirect
-            session_start();
-            $_SESSION['user_id'] = $row['user_id'];
-            $_SESSION['username'] = $row['username'];
-            header("location: land.php"); // Replace with your landing page
-            exit();
-        } else {
-            echo "Invalid password. Please try again.";
-        }
-    } else {
-        echo "Invalid username. Please try again.";
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    if(empty(trim($_POST['username']))){
+      $username_err = 'Please enter username.';
+    } else{
+      $username = trim($_POST['username']);
     }
 
-    // Close the check statement
-    $check_stmt->close();
-}
+    if(empty(trim($_POST['password']))){
+      $password_err = 'Please enter your password.';
+    } else{
+      $password = trim($_POST['password']);
+    }
 
-$conn->close();
+    if (empty($username_err) && empty($password_err)) {
+    
+      $sql = 'SELECT username, password FROM tbl_users WHERE username = ?';
+
+      if ($stmt = $conn->prepare($sql)) {
+
+        $param_username = $username;
+        $stmt->bind_param('s', $param_username);
+
+        if ($stmt->execute()) {
+          $stmt->store_result();
+
+          if ($stmt->num_rows == 1) {
+            
+            $stmt->bind_result($username, $hashed_password);
+            if ($stmt->fetch()) {
+              if (password_verify($password, $hashed_password)) {
+
+                session_start();
+
+                $_SESSION['loggedin'] = true;
+                $_SESSION['id'] = $id;
+                $_SESSION['username'] = $username;
+                
+                ///header('location: land.php');
+                echo "<script>window.location.href='http://localhost/Eyecancer/land.php';</script>";
+              
+              
+              } else {
+
+                $password_err = 'Invalid password';
+
+              }
+            }
+          } else {
+
+            $username_err = "Username does not exists.";
+
+          }
+        } else {
+          echo "Oops! Something went wrong please try again";
+        }
+       
+        $stmt->close();
+      }
+
+      $conn->close();
+    }
+  }
+
 ?>
 
 <!DOCTYPE html>
