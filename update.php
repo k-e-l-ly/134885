@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require_once "connect.php";
+
 if (isset($_POST['update'])) {
     $user_id = $_POST['user_id'];
     $new_username = $_POST['new_username'];
@@ -7,7 +12,7 @@ if (isset($_POST['update'])) {
     $sql = "UPDATE tbl_users SET username = ? WHERE user_id = ?";
     
     // Prepare and execute the SQL query
-    $stmt->prepare($sql);
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param('si', $new_username, $user_id);
     
     if ($stmt->execute()) {
@@ -19,7 +24,11 @@ if (isset($_POST['update'])) {
     $stmt->close();
 }
 
+$conn->close();
 ?>
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
