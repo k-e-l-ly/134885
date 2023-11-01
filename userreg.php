@@ -21,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $raw_password = $_POST['password'];
     $dateofbirth = $_POST['dateofbirth'];
     $gender = $_POST['gender'];
-    $role = $_POST['role'];
 
     // Validate inputs
     if (empty($username)) {
@@ -38,60 +37,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Additional input validation can be added here
 
-    if ($role === "admin") {
-        $errors[] = "Access denied for admin role.";
-    }
-
     if (count($errors) == 0) {
         // Hash the password
         $hashed_password = password_hash($raw_password, PASSWORD_DEFAULT);
 
-        // Check if the email already exists in the database
-        $check_query = "SELECT * FROM tbl_users WHERE email = ?";
+        // Set the role_id for users (assuming 2 is for users)
+        $role_id = 2;
 
-        // Create a prepared statement for the check
-        $check_stmt = $conn->prepare($check_query);
+        // Prepare the INSERT statement
+        $insert_query = "INSERT INTO tbl_users (user_id, username, email, password, dateofbirth, gender, role_id) 
+                         VALUES (NULL, ?, ?, ?, ?, ?, ?)";
 
-        // Bind the parameter for the email check
-        $check_stmt->bind_param("s", $email);
+        // Create a prepared statement for the insertion
+        $stmt = $conn->prepare($insert_query);
 
-        // Execute the check statement
-        $check_stmt->execute();
+        // Bind the parameters for insertion
+        $stmt->bind_param("sssssi", $username, $email, $hashed_password, $dateofbirth, $gender, $role_id);
 
-        // Store the result
-        $result = $check_stmt->get_result();
-
-        // Check if the email exists
-        if ($result->num_rows > 0) {
-            $errors[] = "Email already exists. Please use a different email.";
+        // Execute the insertion statement
+        if ($stmt->execute()) {
+            // Registration successful, redirect to another page
+            header("location: land.php");
+            exit; // Terminate the script to ensure a clean redirection
         } else {
-            // Email doesn't exist, proceed with registration
-
-            // Prepare the INSERT statement
-            $insert_query = "INSERT INTO tbl_users (user_id, username, email, password, dateofbirth, gender, role) 
-                             VALUES (NULL, ?, ?, ?, ?, ?, ?)";
-
-            // Create a prepared statement for the insertion
-            $stmt = $conn->prepare($insert_query);
-
-            // Bind the parameters for insertion
-            $stmt->bind_param("ssssss", $username, $email, $hashed_password, $dateofbirth, $gender, $role);
-
-            // Execute the insertion statement
-            if ($stmt->execute()) {
-                // Registration successful, redirect to another page
-                header("location: land.php");
-                exit; // Terminate the script to ensure a clean redirection
-            } else {
-                echo "Registration failed. Please try again later.";
-            }
-
-            // Close the insertion statement
-            $stmt->close();
+            echo "Registration failed. Please try again later.";
         }
 
-        // Close the check statement
-        $check_stmt->close();
+        // Close the insertion statement
+        $stmt->close();
     }
 }
 
@@ -145,13 +118,6 @@ $conn->close();
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="input-box">
-                    <select id="role" name="role">
-                    <option value="user">User</option>
-                    <!--<option value="admin">Admin</option>-->
                     </select>
                 </div>
 

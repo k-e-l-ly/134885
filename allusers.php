@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 }
 
 // Get the total number of users
-$totalUsersQuery = "SELECT COUNT(*) AS total_users FROM tbl_users";
+/*$totalUsersQuery = "SELECT COUNT(*) AS total_users FROM tbl_users";
 $result = $conn->query($totalUsersQuery);
 $row = $result->fetch_assoc();
 $totalUsers = $row['total_users'];
@@ -48,7 +48,7 @@ $result = $conn->query($genderSummaryQuery);
 $genderSummary = array();
 while ($row = $result->fetch_assoc()) {
     $genderSummary[$row['gender']] = $row['gender_count'];
-}
+}*/
 
 
 //$conn->close();
@@ -61,6 +61,34 @@ while ($row = $result->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Analysis</title>
     <link rel="stylesheet" href="dashboard.css">
+    <style>
+        /* Center the table */
+        .user-table {
+            text-align: center;
+            margin-right: 0px;
+            margin-right: 200px;
+            width: 80%; /* Adjust the width as needed */
+        }
+
+        /* Style the table */
+        .user-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-right: 90px;
+        }
+
+        .user-table table th, .user-table table td {
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        .user-table table th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <section id="sidebar">
@@ -117,7 +145,6 @@ while ($row = $result->fetch_assoc()) {
             </div>-->
 
             <div class="user-table">
-                <h2>User Statistics</h2>
                 <?php
                 $servername = "localhost";
                 $username = "root";
@@ -133,7 +160,7 @@ while ($row = $result->fetch_assoc()) {
                 }
 
                 // Retrieve user statistics
-                $statisticsQuery = "SELECT COUNT(*) AS total_users, MIN(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS min_age, MAX(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS max_age, AVG(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS average_age, gender, COUNT(*) AS gender_count FROM tbl_users GROUP BY gender";
+                /*$statisticsQuery = "SELECT COUNT(*) AS total_users, MIN(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS min_age, MAX(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS max_age, AVG(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(dateofbirth, '%Y')) AS average_age, gender, COUNT(*) AS gender_count FROM tbl_users GROUP BY gender";
                 $result = $conn->query($statisticsQuery);
 
                 while ($row = $result->fetch_assoc()) {
@@ -147,7 +174,7 @@ while ($row = $result->fetch_assoc()) {
                     echo "</ul>";
                 }
 
-                // Close the database connection
+                // Close the database connection*/
                 $conn->close();
                 ?>
             </div>
