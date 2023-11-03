@@ -1,16 +1,7 @@
 <?php
+
 session_start();
+session_unset();
+session_destroy();
 
-?>
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Logout</title>
-    </head>
-    <body>
-        <div style = "float: right">
-            <button>Logout</button>
-        </div>
-    </body>
-</html>
+header("Location: land.php");
