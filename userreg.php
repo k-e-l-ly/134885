@@ -1,4 +1,8 @@
 <?php
+require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\PHPMailer.php';
+require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\SMTP.php';
+require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\Exception.php';
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -35,8 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Password is required.";
     }
 
-    // Additional input validation can be added here
-
     if (count($errors) == 0) {
         // Hash the password
         $hashed_password = password_hash($raw_password, PASSWORD_DEFAULT);
@@ -44,27 +46,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Set the role_id for users (assuming 2 is for users)
         $role_id = 2;
 
-        // Prepare the INSERT statement
-        $insert_query = "INSERT INTO tbl_users (user_id, username, email, password, dateofbirth, gender, role_id) 
-                         VALUES (NULL, ?, ?, ?, ?, ?, ?)";
+        // Generate a verification code
+        $verification_code = md5(uniqid(rand(), true));
 
-        // Create a prepared statement for the insertion
-        $stmt = $conn->prepare($insert_query);
+        // Store the verification information in the tbl_verification table
+        $insert_verification_query = "INSERT INTO tbl_verificaton (role_id, verification_code, email) VALUES (?, ?, ?)";
 
-        // Bind the parameters for insertion
-        $stmt->bind_param("sssssi", $username, $email, $hashed_password, $dateofbirth, $gender, $role_id);
+        $stmt_verification = $conn->prepare($insert_verification_query);
+        $stmt_verification->bind_param("iss", $role_id, $verification_code, $email);
 
-        // Execute the insertion statement
-        if ($stmt->execute()) {
-            // Registration successful, redirect to another page
-            header("location: land.php");
-            exit; // Terminate the script to ensure a clean redirection
+        if ($stmt_verification->execute()) {
+            // Registration successful, send a verification email
+            $mail = new PHPMailer\PHPMailer\PHPMailer();
+
+            // Set up your SMTP settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.example.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'kelly.mbai@gmail.com';
+            $mail->Password = 'vwwk bovk ltmp qrid';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+
+            // Set email parameters
+            $mail->setFrom('verification@eyetest.com', 'Your Name');
+            $mail->addAddress($email, $username);
+            $mail->isHTML(true);
+            $mail->Subject = 'Verify Your Email';
+
+            // Create a verification link with the verification code
+            $verification_link = 'http://eyetest.com/verify.php?code=' . $verification_code;
+            $mail->Body = "Click the following link to verify your email: <a href='$verification_link'>$verification_link</a>";
+
+            if ($mail->send()) {
+                // Email sent successfully
+                header("location: verify.php");
+                exit;
+            } else {
+                echo "Email sending failed. Please try again later.";
+            }
+
+            // Close the verification insertion statement
+            $stmt_verification->close();
         } else {
             echo "Registration failed. Please try again later.";
         }
-
-        // Close the insertion statement
-        $stmt->close();
     }
 }
 
@@ -136,7 +162,7 @@ $conn->close();
         // JavaScript function to redirect to another page
         function redirectToAnotherPage() {
             // Replace 'landing.php' with the URL of the desired page
-            window.location.href = 'land.php';
+            window.location.href = 'verify.php';
         }
     </script>
 
