@@ -175,9 +175,6 @@ body {
 	left: 60px;
 }
 
-
-
-
 /* NAVBAR */
 #content nav {
 	height: 56px;
@@ -302,10 +299,6 @@ body {
 }
 /* NAVBAR */
 
-
-
-
-
 /* MAIN */
 #content main {
 	width: 100%;
@@ -355,9 +348,6 @@ body {
 	grid-gap: 10px;
 	font-weight: 500;
 }
-
-
-
 
 #content main .box-info {
 	display: grid;

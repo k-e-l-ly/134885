@@ -1,170 +1,163 @@
 <?php
-require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\PHPMailer.php';
-require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\SMTP.php';
-require 'C:\xampp\htdocs\Eyecancer\vendor\phpmailer\phpmailer\src\Exception.php';
+    // Import PHPMailer classes into the global namespace
+    // These must be at the top of your script, not inside a function
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\SMTP;
+    use PHPMailer\PHPMailer\Exception;
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "eyecancer";
-
-$conn = new mysqli($servername, $username, $password, $database);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $errors = array(); // Create an array to store validation errors
-
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $raw_password = $_POST['password'];
-    $dateofbirth = $_POST['dateofbirth'];
-    $gender = $_POST['gender'];
-
-    // Validate inputs
-    if (empty($username)) {
-        $errors[] = "Username is required.";
+    session_start();
+    if (isset($_SESSION['SESSION_EMAIL'])) {
+        header("Location: land.php");
+        die();
     }
 
-    if (empty($email)) {
-        $errors[] = "Email is required.";
-    }
+    // Load Composer's autoloader
+    require 'vendor/autoload.php';
 
-    if (empty($raw_password)) {
-        $errors[] = "Password is required.";
-    }
+    include 'connect.php';
+    $msg = "";
 
-    if (count($errors) == 0) {
-        // Hash the password
-        $hashed_password = password_hash($raw_password, PASSWORD_DEFAULT);
+    if (isset($_POST['submit'])) {
+        $username = mysqli_real_escape_string($conn, $_POST['username']);
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $password = mysqli_real_escape_string($conn, md5($_POST['password']));
+        $confirm_password = mysqli_real_escape_string($conn, md5($_POST['confirm-password']));
+        $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+        $dateofbirth = mysqli_real_escape_string($conn, $_POST['dateofbirth']);
+        $code = mysqli_real_escape_string($conn, md5(rand()));
 
-        // Set the role_id for users (assuming 2 is for users)
-        $role_id = 2;
-
-        // Generate a verification code
-        $verification_code = md5(uniqid(rand(), true));
-
-        // Store the verification information in the tbl_verification table
-        $insert_verification_query = "INSERT INTO tbl_verificaton (role_id, verification_code, email) VALUES (?, ?, ?)";
-
-        $stmt_verification = $conn->prepare($insert_verification_query);
-        $stmt_verification->bind_param("iss", $role_id, $verification_code, $email);
-
-        if ($stmt_verification->execute()) {
-            // Registration successful, send a verification email
-            $mail = new PHPMailer\PHPMailer\PHPMailer();
-
-            // Set up your SMTP settings
-            $mail->isSMTP();
-            $mail->Host = 'smtp.example.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'kelly.mbai@gmail.com';
-            $mail->Password = 'vwwk bovk ltmp qrid';
-            $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
-
-            // Set email parameters
-            $mail->setFrom('verification@eyetest.com', 'Your Name');
-            $mail->addAddress($email, $username);
-            $mail->isHTML(true);
-            $mail->Subject = 'Verify Your Email';
-
-            // Create a verification link with the verification code
-            $verification_link = 'http://eyetest.com/verify.php?code=' . $verification_code;
-            $mail->Body = "Click the following link to verify your email: <a href='$verification_link'>$verification_link</a>";
-
-            if ($mail->send()) {
-                // Email sent successfully
-                header("location: verify.php");
-                exit;
-            } else {
-                echo "Email sending failed. Please try again later.";
-            }
-
-            // Close the verification insertion statement
-            $stmt_verification->close();
+        if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM tbl_users WHERE email='{$email}'")) > 0) {
+            $msg = "<div class='alert alert-danger'>{$email} - This email address has already been used.</div>";
         } else {
-            echo "Registration failed. Please try again later.";
+            if ($password === $confirm_password) {
+                $role_id = 2; // Set the role_id
+
+                $sql = "INSERT INTO tbl_users (username, email, password, gender, dateofbirth, role_id, code) 
+                        VALUES ('{$username}', '{$email}', '{$password}', '{$gender}', '{$dateofbirth}', '{$role_id}', '{$code}')";
+
+                $result = mysqli_query($conn, $sql);
+
+                if ($result) {
+                    echo "<div style='display: none;'>";
+                    // Create an instance; passing `true` enables exceptions
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // Server settings
+                        $mail->SMTPDebug = SMTP::DEBUG_SERVER;  // Enable verbose debug output
+                        $mail->isSMTP();  // Send using SMTP
+                        $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to send through
+                        $mail->SMTPAuth = true;  // Enable SMTP authentication
+                        $mail->Username = 'kelly.mbai@strathmore.edu';  // SMTP username
+                        $mail->Password = 'vwwk bovk ltmp qrid';  // SMTP password
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Enable implicit TLS encryption
+                        $mail->Port = 465;  // TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                        // Recipients
+                        $mail->setFrom('kelly.mbai@strathmore.edu');
+                        $mail->addAddress($email);
+
+                        // Content
+                        $mail->isHTML(true);  // Set email format to HTML
+                        $mail->Subject = 'no reply';
+                        $mail->Body = 'Here is the verification link <b><a href="http://localhost/simple/index.php?verification='.$code.'">http://localhost/simple/index.php?verification='.$code.'</a></b>';
+
+                        $mail->send();
+                        echo 'Message has been sent';
+                    } catch (Exception $e) {
+                        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    }
+                    echo "</div>";
+                    $msg = "<div class='alert alert-info'>We've sent a verification link to your email address.</div>";
+                } else {
+                    $msg = "<div class='alert alert-danger'>Something went wrong.</div>";
+                }
+            } else {
+                $msg = "<div class='alert alert-danger'>Password and Confirm Password do not match</div>";
+            }
         }
     }
-}
-
-$conn->close();
 ?>
+
+<!-- Rest of the HTML code remains unchanged -->
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zxx">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Form</title>
-    <link rel="stylesheet" href="reg.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Register With Us</title>
+    <!-- Meta tag Keywords -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="keywords" content="Login Form" />
+    <!-- //Meta tag Keywords -->
+
+    <link href="//fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!--/Style-CSS -->
+    <link rel="stylesheet" href="urstyle.css" type="text/css" media="all" />
+    <!--//Style-CSS -->
+
+    <script src="https://kit.fontawesome.com/af562a2a63.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <?php include 'header.php'; ?>
 
-    <div class = "container">
+    <!-- form section start -->
+    <section class="w3l-mockup-form">
+        <div class="container">
+            <!-- /form -->
+            <div class="workinghny-form-grid">
+                <div class="main-mockup">
+                    <div class="alert-close">
+                        <span class="fa fa-close"></span>
+                    </div>
+                    <div class="w3l_form align-self">
+                        <div class="left_grid_info">
+                            <img src="Authentication_Isometric.png" alt="">
+                        </div>
+                    </div>
+                    <div class="content-wthree">
+                        <h2>Register Now</h2>
+                        <p>Register Here</p>
+                        <?php echo $msg; ?>
+                        <form action="" method="post">
+                            <input type="text" class="username" name="username" placeholder="Enter Your Name" value="<?php if (isset($_POST['submit'])) { echo $username; } ?>" required>
+                            <input type="email" class="email" name="email" placeholder="Enter Your Email" value="<?php if (isset($_POST['submit'])) { echo $email; } ?>" required>
+                            <input type="password" class="password" name="password" placeholder="Enter Your Password" required>
+                            <input type="password" class="confirm-password" name="confirm-password" placeholder="Enter Your Confirm Password" required>
+                            <input type="date" class="dateofbirth" name="dateofbirth" required>
+                            <div class="gender-select">
+                            <label for="gender">Gender</label>
+                                <select id="gender" name="gender">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
 
-         <div class = "form-box">
-            <form id="registration form" method="POST" action="userreg.php" >
-                <h2>Register Here</h2>
-                <div class="input-box">
-                    <input type="text" name="username" placeholder ="username">
+                        <button name="submit" class="btn" type="submit">Register</button>
+                        </form>
+                        <div class="social-icons">
+                            <p>Have an account! <a href="index.php">Login</a>.</p>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="input-box">
-                    <input type="email" name="email" placeholder ="Email">
-                </div>
-
-                <!--<div class="input-box">
-                    <input type="email" name="phonenumber" placeholder ="Phone Number">
-                </div>-->
-
-                <div class="input-box">
-                    <input type="password" name="password" placeholder ="Password">
-                </div>
-
-                <div class="input-box">
-                    <input type="password" name="confirmpassword" placeholder ="Confirm Password">
-                </div>
-
-                <div class="input-box">
-                    <input type="date" name="dateofbirth" required>
-                </div>
-
-                <div class="input-box">
-                    <select id="gender" name="gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="button">
-                    <input type="submit" class="btn" value="Register" onclick="redirectToAnotherPage()">
-                </div>
-
-                <div class="group">
-                    <span><a href= "log.php" >Have an account? Login</a><span><br><br>
-                </div>
-            </form>
+            </div>
+            <!-- //form -->
         </div>
-    </div>
+    </section>
+    <!-- //form section start -->
 
+    <script src="js/jquery.min.js"></script>
     <script>
-        // JavaScript function to redirect to another page
-        function redirectToAnotherPage() {
-            // Replace 'landing.php' with the URL of the desired page
-            window.location.href = 'verify.php';
-        }
+        $(document).ready(function (c) {
+            $('.alert-close').on('click', function (c) {
+                $('.main-mockup').fadeOut('slow', function (c) {
+                    $('.main-mockup').remove();
+                });
+            });
+        });
     </script>
-
 </body>
 </html>
