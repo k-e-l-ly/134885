@@ -1,36 +1,30 @@
 <?php
-
 require_once "connect.php";
 
-if (isset($_POST['delete'])) {
-    $user_id = $_POST['user_id'];
+// sql to delete a record
+$sql = "DELETE FROM tbl_users WHERE user_id = ?";
 
-    // Check if the user exists
-    $sql = "SELECT id FROM tbl_users WHERE user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows == 1) {
-        // Delete the user
-        $sql = "DELETE FROM tbl_users WHERE user_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('i', $user_id);
-        $stmt->execute();
-
-        if ($stmt->execute()) {
-            echo "User deleted successfully.";
-        } else {
-            echo "Error deleting user: " . $stmt->error;
-        }
+if ($stmt = $conn->prepare($sql)) {
+    // Bind variables to the prepared statement as parameters
+    $stmt->bind_param("i", $param_id);
+    
+    // Set parameters
+    $param_id = intval($_GET['user_id']);
+    
+    // Attempt to execute the prepared statement
+    if ($stmt->execute()) {
+        echo "User was deleted successfully.";
     } else {
-        echo "User does not exist.";
+        echo "Oops! Something went wrong. Please try again later.";
     }
-
-    $stmt->close();
+} else {
+    echo "Oops! Something went wrong. Please try again later.";
 }
 
+$stmt->close();
 $conn->close();
 
+// Redirect to the same page
+header("Location: allusers.php");
+exit;
 ?>

@@ -73,6 +73,7 @@
         @media screen and (max-width: 600px) {
             .column {
                 width: 100%;
+                height: 180px;
                 display: block;
                 margin-bottom: 20px;
             }

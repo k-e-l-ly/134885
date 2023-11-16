@@ -19,7 +19,7 @@
         }
 
         .navbar .logo {
-            color: black;
+            color: rgb(158, 103, 226);
             font-weight: bold;
             text-decoration: none;
             font-size: 28px;

@@ -91,7 +91,7 @@
                             <button name="submit" name="submit" class="btn" type="submit">Login</button>
                         </form>
                         <div class="social-icons">
-                            <p>Create Account! <a href="register.php">Register</a>.</p>
+                            <p>Create Account! <a href="userreg.php">Register</a>.</p>
                         </div>
                     </div>
                 </div>

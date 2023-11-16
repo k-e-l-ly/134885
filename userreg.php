@@ -60,8 +60,8 @@
                         // Content
                         $mail->isHTML(true);  // Set email format to HTML
                         $mail->Subject = 'no reply';
-                        $mail->Body = 'Here is the verification link <b><a href="http://localhost/simple/index.php?verification='.$code.'">http://localhost/simple/index.php?verification='.$code.'</a></b>';
-
+                        $mail->Body = 'Here is the verification link <b><a href="http://localhost/Eyecancer/log.php?verification='.$code.'">http://localhost/Eyecancer/log.php?verification='.$code.'</a></b>';
+                            //http://localhost/Eyecancer/log.php
                         $mail->send();
                         echo 'Message has been sent';
                     } catch (Exception $e) {
