@@ -6,6 +6,7 @@
     use PHPMailer\PHPMailer\Exception;
 
     session_start();
+    
     if (isset($_SESSION['SESSION_EMAIL'])) {
         header("Location: land.php");
         die();
@@ -24,7 +25,8 @@
         $confirm_password = mysqli_real_escape_string($conn, md5($_POST['confirm-password']));
         $gender = mysqli_real_escape_string($conn, $_POST['gender']);
         $dateofbirth = mysqli_real_escape_string($conn, $_POST['dateofbirth']);
-        $code = mysqli_real_escape_string($conn, md5(rand()));
+        $code = mysqli_real_escape_string($conn, hash('sha256', uniqid()));
+
 
         if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM tbl_users WHERE email='{$email}'")) > 0) {
             $msg = "<div class='alert alert-danger'>{$email} - This email address has already been used.</div>";
@@ -61,7 +63,7 @@
                         $mail->isHTML(true);  // Set email format to HTML
                         $mail->Subject = 'no reply';
                         $mail->Body = 'Here is the verification link <b><a href="http://localhost/Eyecancer/log.php?verification='.$code.'">http://localhost/Eyecancer/log.php?verification='.$code.'</a></b>';
-                            //http://localhost/Eyecancer/log.php
+                            
                         $mail->send();
                         echo 'Message has been sent';
                     } catch (Exception $e) {
@@ -69,14 +71,13 @@
                     }
                     echo "</div>";
                     $msg = "<div class='alert alert-info'>We've sent a verification link to your email address.</div>";
-                } else {
-                    $msg = "<div class='alert alert-danger'>Something went wrong.</div>";
-                }
+
             } else {
                 $msg = "<div class='alert alert-danger'>Password and Confirm Password do not match</div>";
             }
         }
     }
+}
 ?>
 
 <!-- Rest of the HTML code remains unchanged -->
@@ -137,9 +138,10 @@
                             </div>
 
                         <button name="submit" class="btn" type="submit">Register</button>
+                        
                         </form>
                         <div class="social-icons">
-                            <p>Have an account! <a href="index.php">Login</a>.</p>
+                            <p>Have an account! <a href="log.php">Login</a>.</p>
                         </div>
                     </div>
                 </div>

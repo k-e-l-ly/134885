@@ -4,7 +4,7 @@
 
 session_start();
 if (isset($_SESSION['SESSION_EMAIL'])) {
-    header("Location: welcome.php");
+    header("Location: log.php");
     die();
 }
 
@@ -58,7 +58,7 @@ if (isset($_POST['submit'])) {
                 echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
             }
             echo "</div>";        
-            $msg = "<div class='alert alert-info'>We've send a verification link on your email address.</div>";
+            $msg = "<div class='alert alert-info'>We've send a link to change password on your email address.</div>";
         }
     } else {
         $msg = "<div class='alert alert-danger'>$email - This email address do not found.</div>";
@@ -71,7 +71,7 @@ if (isset($_POST['submit'])) {
 <html lang="zxx">
 
 <head>
-    <title>Login Form - Brave Coder</title>
+    <title>Login Form</title>
     <!-- Meta tag Keywords -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8" />
@@ -114,7 +114,7 @@ if (isset($_POST['submit'])) {
                             <button name="submit" class="btn" type="submit">Send Reset Link</button>
                         </form>
                         <div class="social-icons">
-                            <p>Back to! <a href="index.php">Login</a>.</p>
+                            <p>Back to! <a href="log.php">Login</a>.</p>
                         </div>
                     </div>
                 </div>

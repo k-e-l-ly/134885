@@ -91,7 +91,7 @@
                 }
                 $conn->close();
             } else {
-                echo '<a href="log.php">Login/Register</a>';
+                echo '<a href="logout.php">Login/Register</a>';
             }
             ?>
         </div>
